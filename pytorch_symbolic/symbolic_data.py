@@ -499,13 +499,13 @@ _SYMBOLIC_FACTORY_CACHE = {}
 
 def SymbolicFactory(dtype):
     global _SYMBOLIC_FACTORY_CACHE
-    dtype_name = dtype.__name__
 
-    if dtype_name not in _SYMBOLIC_FACTORY_CACHE:
-        logging.debug(f"New underlying data detected: {dtype_name}!")
-        cls = type(f"SymbolicData({dtype_name})", (SymbolicData,), {})
-        _SYMBOLIC_FACTORY_CACHE[dtype_name] = cls
-    return _SYMBOLIC_FACTORY_CACHE[dtype_name]
+    # Cache by the type object itself: distinct types can share a name
+    if dtype not in _SYMBOLIC_FACTORY_CACHE:
+        logging.debug(f"New underlying data detected: {dtype.__name__}!")
+        cls = type(f"SymbolicData({dtype.__name__})", (SymbolicData,), {})
+        _SYMBOLIC_FACTORY_CACHE[dtype] = cls
+    return _SYMBOLIC_FACTORY_CACHE[dtype]
 
 
 def Input(
