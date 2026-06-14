@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections.abc import Callable
 from types import MethodWrapperType
 from typing import Any
@@ -190,6 +191,14 @@ class SymbolicData:
 
         Suitable for unpacking results, even nested ones.
         """
+        if isinstance(self._value, torch.Tensor) and not self.batch_size_known:
+            msg = (
+                "Iterating over a Symbolic Tensor with unknown batch size! "
+                "This unpacks the placeholder batch dimension of size 1, "
+                "so exactly 1 node is yielded regardless of the real batch size. "
+                "If you meant to iterate over batch elements, create the input with `batch_shape=...`."
+            )
+            warnings.warn(msg, stacklevel=2)
         layer = useful_layers.UnpackLayer()
         new_outputs = layer.__call__(*self.v)
 
